@@ -34,9 +34,9 @@ Engine.prototype.animate = function(time) {
     
     // Update player position if there has been a key press
     if (this.moving !== null) {
-        if (this.position == 'left')
+        if (this.moving == 'left')
             this.position --;
-        if (this.position == 'right')
+        if (this.moving == 'right')
             this.position ++;
     }
     
