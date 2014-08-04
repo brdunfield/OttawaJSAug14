@@ -143,6 +143,7 @@ Engine.prototype.animate = function(time) {
         this.context.textAlign = "center";
         this.context.fillStyle = "#EEE";
         this.context.fillText("Click to play", 400, 300);
+        this.context.fillText(" L and R arrows to move", 400, 320); 
     }
     
     // FPS Indicator
@@ -164,7 +165,7 @@ Engine.prototype.restartGame = function() {
     this.score = 0;
     
     this.gameStart = true;
-}
+};
 
 /*
     ======================= Event Handler Functions =======================
