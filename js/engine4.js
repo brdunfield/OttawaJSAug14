@@ -133,7 +133,7 @@ Engine.prototype.animate = function(time) {
     this.context.textAlign = "left";
     this.context.fillText("Score: " + Math.round(this.score), 10, 30);
     for (var i=0; i < this.health; i++) {
-        this.context.drawImage(this.images.star, 760 - (40*i), 10);
+        this.context.drawImage(this.images.heart, 760 - (40*i), 10);
     }
     
     // If game is not currently playing, display title screen
@@ -204,6 +204,7 @@ Engine.prototype.initImageAssets = function() {
     this.queueImage("assets/Starfall_Player-Medium.png", 'player');
     this.queueImage("assets/Starfall-Meteor.png", 'meteor');
     this.queueImage("assets/Starfall-Star.png", 'star');
+    this.queueImage("assets/Starfall_Heart.png", 'heart');
     
     var loadingPercent = 0;
     var interval = setInterval(function(e) {
