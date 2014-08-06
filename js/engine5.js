@@ -115,6 +115,8 @@ Engine.prototype.animate = function(time) {
         this.stars.push(new CelestialObject(true, false));
         this.starSpawnLastTime = time;
     }
+    // Here is where we incorporate the difficulty increase, which happens every 5s.
+    // If we wanted it to be smoother, we could use the time variable itself, which is constantly increasing
     if ((time - this.speedUpLastTime) > this.speedUpFrequency) {
         this.meteorSpeed += 15;
         this.starSpeed += 10;
