@@ -1,5 +1,5 @@
 var Engine = function(canvasID) {
-    // This is required in order to have the proper context in the requestAnimationFrame below
+    // This is required in order to have the proper context in the requestAnimationFrame below400
     var self = this;
     
     var canvas = document.getElementById(canvasID);
@@ -19,6 +19,38 @@ var Engine = function(canvasID) {
     
     this.meteors = [];
     this.stars = [];
+    
+    /*
+        ======================= Time based Motion Variables =======================
+    */
+    // speeds are in px/s
+    this.playerSpeed = 200;
+    this.meteorSpeed = 175;
+    this.starSpeed = 160;
+    // Instead of spawning entities randomly, we want to spawn them at a regular interval.
+    // Say, a star every 1s and a meteor every 0.5s
+    // As well, what if we make the game harder by increasing the speed of falling entities
+    // every 5 seconds
+    
+    // There are two ways we could accomplish this:
+    // 1. Use a set interval
+    /*
+    this.speedUp = setInterval(function() {
+        self.meteorSpeed += 15;
+        self.starSpeed += 10;
+    }, 5000);
+    */
+    // This is not advisable since the interval will be running separately from our game loop
+    
+    // 2. Track the last time the event occured and compare to current time.
+    // For this, we need to declare the FREQUENCY of events, and the last spawn time
+    this.speedUpFrequency = 5000; // 5s
+    this.meteorSpawnFrequency = 500; // we can also increase difficulty by decreasing this variable
+    this.starSpawnFrequency = 1000;
+    
+    this.speedUpLastTime = 0;
+    this.meteorSpawnLastTime = 0;
+    this.starSpwanLastTime = 0;
     
     // Assets and asset loading variables
 	this.images = {};
@@ -41,36 +73,55 @@ var Engine = function(canvasID) {
 Engine.prototype.animate = function(time) {
     var self = this;
     
+    // Time based motion - determine how long it has been since the last frame
+    // This will be in milliseconds
+    var elapsedTime = time - this.lastTime;
+    
     /*
         ======================= Update =======================
     */
     
+    // Update entity positions.
+    // Use elapsedTime variable declared above.
+    // px to move = entity.speed (px/s) * elapsedTime(ms) * (1s / 1000ms)
+    
     // Update player position if there has been a key press
     if (this.moving !== null) {
         if (this.moving == 'left')
-            this.position -=4;
+            this.position -= this.playerSpeed * (elapsedTime / 1000);
         if (this.moving == 'right')
-            this.position +=4;
+            this.position += this.playerSpeed * (elapsedTime / 1000);
     }
     
     // Update position of stars and meteors. Any objects below the ground should be removed
     for (var i=0; i < this.meteors.length; i++) {
-        this.meteors[i].y += 5;
+        this.meteors[i].y += this.meteorSpeed * (elapsedTime / 1000);
         if (this.meteors[i].y > 600)
             this.meteors.splice(i, 1);
     }
     for (var j=0; j < this.stars.length; j++) {
-        this.stars[j].y += 5;
+        this.stars[j].y += this.starSpeed * (elapsedTime / 1000);
         if (this.stars[j].y > 600)
             this.stars.splice(j, 1);
     }
     
-    // Chance to generate new stars / meteors
-    var rand = Math.random();
-    if (rand < 0.03)
-        this.stars.push(new CelestialObject(false, true));
-    else if (rand < 0.10)
+    // Use our time based event variables to spawn new entites / change the difficulty.
+    // We need to update the "Last Spawn / Event" time marker so we don't spawn every frame
+    if ((time - this.meteorSpawnLastTime) > this.meteorSpawnFrequency) {
         this.meteors.push(new CelestialObject(true, false));
+        this.meteorSpawnLastTime = time;
+    }
+    if ((time - this.starSpawnLastTime) > this.starSpawnFrequency){
+        this.stars.push(new CelestialObject(true, false));
+        this.starSpawnLastTime = time;
+    }
+    if ((time - this.speedUpLastTime) > this.speedUpFrequency) {
+        this.meteorSpeed += 15;
+        this.starSpeed += 10;
+        if (this.meteorSpawnFrequency > 100)
+            this.meteorSpawnFrequency -= 26;
+        this.speedUpLastTime = time;
+    }
     
     // Collision detection with character:
     // Stars will increase the player's score, Meteors will decrease their health
@@ -143,7 +194,7 @@ Engine.prototype.animate = function(time) {
         this.context.textAlign = "center";
         this.context.fillStyle = "#EEE";
         this.context.fillText("Click to play", 400, 300);
-        this.context.fillText(" L and R arrows to move", 400, 320); 
+        this.context.fillText(" L and R arrows to move", 400, 320);
         
         if (this.score > 0)
             this.context.fillText("Last Score: " + this.score, 400, 380);
@@ -167,6 +218,14 @@ Engine.prototype.restartGame = function() {
     this.health = 3;
     this.score = 0;
     this.position = 400;
+    
+    // Reset time-based variables
+    var time = new Date().getTime();
+    this.meteorSpeed = 175;
+    this.starSpeed = 160;
+    this.meteorSpawnLastTime = this.lastTime;
+    this.starSpawnLastTime = this.lastTime;
+    this.meteorSpawnFrequency = 500;
     
     this.gameStart = true;
 };
