@@ -68,9 +68,9 @@ Engine.prototype.animate = function(time) {
     // Chance to generate new stars / meteors
     var rand = Math.random();
     if (rand < 0.03)
-        this.stars.push(new CelestialObject(false, true));
+        this.stars.push(new CelestialObject(50));
     else if (rand < 0.10)
-        this.meteors.push(new CelestialObject(true, false));
+        this.meteors.push(new CelestialObject(0));
     
     // Collision detection with character:
     // Stars will increase the player's score, Meteors will decrease their health
@@ -92,7 +92,7 @@ Engine.prototype.animate = function(time) {
         if (this.stars[j].y > 500) { // star is low enough
             if (Math.abs(this.stars[j].x - this.position) < 54) {
                 // 54 = 40 + 14
-                this.score += 50;
+                this.score += this.stars[j].score;
                 // remove star from array
                 this.stars.splice(j, 1);
                 break;
@@ -266,9 +266,8 @@ Engine.prototype.loadImages = function() {
 */
 // Meteors and Stars are similar, but have slightly different effects, so I have chosen to group
 // them into one Celestial Object type
-var CelestialObject = function(fatal, score) {
+var CelestialObject = function(score) {
     this.x = Math.random()*800;
     this.y = 0;
-    this.fatal = fatal;
     this.score = score;
 }
